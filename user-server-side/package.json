@@ -1,0 +1,11 @@
+{
+  "name": "user-server-side",
+  "version": "1.0.0",
+  "description": "Server-side implementation for a user dashboard in Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Akshay Pawar",
+  "license": "ISC"
+}
