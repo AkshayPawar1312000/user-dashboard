@@ -1,10 +1,21 @@
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
+import { useSelector } from "react-redux";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
+// AlertMessage component displays a customizable alert box with messages.
+// It supports different alert types such as success, error, and warning.
 const AlertMessage = () => {
-  const [openSuccessAlert, setOpenSuccessAlert] = useState(false);
-  const [openErrorAlert, setOpenErrorAlert] = useState(false);
+  
+  // useSelector
+  const successMess = useSelector((state) => state?.user.successMessage);
+  const errorMess = useSelector((state) => state?.user.errorMessage);
+
+  //useState
+  const [openSuccessAlert, setOpenSuccessAlert] = useState(successMess?.type);
+  const [openErrorAlert, setOpenErrorAlert] = useState(errorMess?.type);
+
+  // functions
   const handleCloseSuccessAlert = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -17,6 +28,14 @@ const AlertMessage = () => {
     }
     setOpenErrorAlert(false);
   };
+
+  // useEffect
+  useEffect(() => {
+    setOpenSuccessAlert(successMess?.type);
+  }, [successMess]);
+  useEffect(() => {
+    setOpenErrorAlert(errorMess?.type);
+  }, [errorMess]);
   return (
     <>
       {/* <-------------- Alert User added Success Massage ---------------> */}
@@ -35,7 +54,7 @@ const AlertMessage = () => {
           severity="success"
           sx={{ width: "100%" }}
         >
-          {"User added successfully"}
+          {successMess?.message}
         </Alert>
       </Snackbar>
       {/* <-------------- Alert User added fail Massage ---------------> */}
@@ -54,7 +73,7 @@ const AlertMessage = () => {
           severity="error"
           sx={{ width: "100%" }}
         >
-          {"User not added"}
+          {errorMess?.message}
         </Alert>
       </Snackbar>
     </>

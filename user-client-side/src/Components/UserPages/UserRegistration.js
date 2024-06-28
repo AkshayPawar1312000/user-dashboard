@@ -14,22 +14,23 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useNavigate } from "react-router-dom";
-import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
-import { addUserData } from "../../Store/Actions/UserActions";
+import { addUserData, updateUser } from "../../Store/Actions/UserActions";
 import { useDispatch, useSelector } from "react-redux";
 import CircularProgress, {
   circularProgressClasses,
 } from "@mui/material/CircularProgress";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Box from "@mui/material/Box";
 import dayjs from "dayjs";
 
+// CircularProgressWithLabel component shows a circular progress bar with a label.
 function circularProgress(props) {
   return (
     <Box
@@ -73,6 +74,7 @@ function circularProgress(props) {
   );
 }
 
+// User Roles
 const roles = [
   {
     value: "admin",
@@ -88,41 +90,78 @@ const roles = [
   },
 ];
 
-// ===========================|| USER REGISTRATION ||=========================== //
+// ==========================================|| USER REGISTRATION ||========================================== //
+
+//UserRegistration manages user registration with a comprehensive form for entering personal details,
+//including name, age, birthday, role selection, email, password, gender, and acceptance of terms.
+//It integrates Redux for state management and features navigation links for existing user login.
 
 const UserRegistration = () => {
+
+  // Constatnt values
+  const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // useSelector
   const submitLoader = useSelector((state) => state?.user.loader);
+  const editUserData = useSelector((state) => state?.user.editUser);
 
-  const theme = useTheme();
+  // useState
   const [loader, setLoader] = useState(submitLoader);
 
+  // This function handle the react-hook-form validation
   const {
-    register,
     handleSubmit,
     control,
+    reset, // Reset form state
     formState: { errors },
   } = useForm();
 
+  // In this function dispatch the user data according to add and update method
   const onSubmit = (data) => {
-    let date = new Date(data.birthday);
-    const userData = {
-      ...data,
-      birthday: date,
-    };
-    // dispatch(addUserData(userData, navigate));
-    console.log(userData)
+    if (editUserData) {
+      dispatch(updateUser(editUserData._id, data, navigate));
+    } else {
+      dispatch(addUserData(data, navigate));
+    }
   };
-
   const handleGoToLoginPage = () => {
     navigate("/login");
   };
 
+  // useEffect
   useEffect(() => {
     setLoader(submitLoader);
   }, [submitLoader]);
+
+  useEffect(() => {
+    if (editUserData) {
+      // If editUserData exists, populate form fields
+      reset({
+        name: editUserData.name || "",
+        age: editUserData.age || "",
+        birthday: editUserData.birthday ? dayjs(editUserData.birthday) : null,
+        role: editUserData.role || "",
+        email: editUserData.email || "",
+        password: editUserData.password || "",
+        gender: editUserData.gender || "",
+        termAndCondition: editUserData.termAndCondition || false,
+      });
+    } else {
+      // Otherwise, reset the form fields
+      reset({
+        name: "",
+        age: "",
+        birthday: null,
+        role: "",
+        email: "",
+        password: "",
+        gender: "",
+        termAndCondition: false,
+      });
+    }
+  }, [editUserData, reset]);
 
   return (
     <>
@@ -246,9 +285,7 @@ const UserRegistration = () => {
                               }}
                               value={field.value ? dayjs(field.value) : null}
                               onChange={(date) =>
-                                field.onChange(
-                                  date ? dayjs(date).toDate() : null
-                                )
+                                field.onChange(date ? date.toDate() : null)
                               }
                             />
                           )}

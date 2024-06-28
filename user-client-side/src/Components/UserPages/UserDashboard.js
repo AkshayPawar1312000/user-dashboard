@@ -23,17 +23,25 @@ import {
   InputAdornment,
   TextField,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import CircularProgress, {
+  circularProgressClasses,
+} from "@mui/material/CircularProgress";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  allUsers,
+  deleteUser,
+  editUSerData,
+} from "../../Store/Actions/UserActions";
+import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import Box from "@mui/material/Box";
-import { useTheme } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import CircularProgress, {
-  circularProgressClasses,
-} from "@mui/material/CircularProgress";
 
+// CircularProgressWithLabel component shows a circular progress bar with a label.
 function CircularProgressWithLabel(props) {
   return (
     <Box
@@ -45,13 +53,6 @@ function CircularProgressWithLabel(props) {
         alignItems: "center",
       }}
     >
-      <CircularProgress
-        variant="determinate"
-        size={20}
-        thickness={4}
-        {...props}
-        value={100}
-      />
       <CircularProgress
         variant="indeterminate"
         disableShrink
@@ -71,88 +72,7 @@ function CircularProgressWithLabel(props) {
   );
 }
 
-const userInfo = [
-  {
-    id: "01",
-    name: "Akshay Pawar",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "20/02/2024",
-  },
-  {
-    id: "02",
-    name: "Dipti Jadav",
-    age: 25,
-    role: "guest",
-    gender: "female",
-    birthday: "30/02/2024",
-  },
-  {
-    id: "03",
-    name: "Dipak Pawar",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "21/05/2024",
-  },
-  {
-    id: "04",
-    name: "Ganesh Jay",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "20/02/2024",
-  },
-  {
-    id: "05",
-    name: "Sandesh",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "20/02/2024",
-  },
-  {
-    id: "01",
-    name: "sagar",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "20/02/2024",
-  },
-  {
-    id: "02",
-    name: "jaydip",
-    age: 25,
-    role: "guest",
-    gender: "female",
-    birthday: "30/02/2024",
-  },
-  {
-    id: "03",
-    name: "sumedh",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "21/05/2024",
-  },
-  {
-    id: "04",
-    name: "omkar Jay",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "20/02/2024",
-  },
-  {
-    id: "05",
-    name: "sandy",
-    age: 20,
-    role: "admin",
-    gender: "male",
-    birthday: "20/02/2024",
-  },
-];
+// User's Roles
 const roles = [
   {
     value: "admin",
@@ -168,24 +88,39 @@ const roles = [
   },
 ];
 
+// =============================================|| USER DASHBOARD ||============================================= //
+
+// UserDashboard component provides an overview of user-specific data and activities.
 const UserDashboard = () => {
+  
+  // constant values
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  //useSelector
+  const users = useSelector((state) => state?.user.allUsers);
+  const submitLoader = useSelector((state) => state?.user.loader);
+
+  // usestate
+  const [loader, setLoader] = useState(submitLoader);
+  const [userInfo, setUserInfo] = useState([]);
   const [data, setData] = useState([]);
-  const [loader, setLoader] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [role, setRole] = useState("");
 
+  // UserDashboard components functions
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  // This handleSearchAndRoleChange function is search user in table according to name and role fields
   const handleSearchAndRoleChange = (searchTerm, role) => {
     setSearchTerm(searchTerm);
     setRole(role);
@@ -196,26 +131,52 @@ const UserDashboard = () => {
     );
     setData(filteredData);
   };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
+  // This function work handle row per page values
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.textContent, 10));
     setPage(1);
     handleClose();
   };
 
-  useEffect(() => {
-    setData(userInfo);
-  }, []);
-
   const displayedData = data.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
 
+  const handleAddUserButton = () => {
+    navigate("/");
+  };
+
+  const handleDeleteUser = (id) => {
+    dispatch(deleteUser(id));
+    setLoader(true);
+  };
+  const handleEditUserData = (data) => {
+    dispatch(editUSerData(data, navigate));
+  };
+
+  // useEffect
+  // Fetch users on component mount or when users change
+  useEffect(() => {
+    dispatch(allUsers());
+  }, []);
+
+  // Update local state when users change
+  useEffect(() => {
+    if (users && users.length > 0) {
+      setUserInfo(users);
+      setData(users);
+    }
+  }, [users]);
+
+  // Update submit loader
+  useEffect(() => {
+    setLoader(submitLoader);
+  }, [submitLoader]);
   return (
     <>
       <Container>
@@ -254,10 +215,7 @@ const UserDashboard = () => {
                           }
                           size="small"
                           onChange={(event) =>
-                            handleSearchAndRoleChange(
-                              event.target.value,
-                              role
-                            )
+                            handleSearchAndRoleChange(event.target.value, role)
                           }
                         />
                         <TextField
@@ -268,6 +226,7 @@ const UserDashboard = () => {
                           select
                           fullWidth
                           placeholder="Select role"
+                          label="Select role"
                           name="size"
                           value={role}
                           onChange={(event) =>
@@ -286,7 +245,6 @@ const UserDashboard = () => {
                       </Grid>
                     </Grid>
                   </Grid>
-
                   <Grid item xs={12} sm={12} sx={{ mt: 0 }}>
                     <TableContainer component={Paper}>
                       <Table
@@ -307,6 +265,24 @@ const UserDashboard = () => {
                             </TableCell>
                           </TableRow>
                         </TableHead>
+                        {loader ? (
+                          <TableRow>
+                            <TableCell style={{ height: 30 }}> </TableCell>
+                            <TableCell></TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell align="right">
+                              <CircularProgressWithLabel />
+                            </TableCell>
+                            <TableCell align="right"></TableCell>
+                            <TableCell
+                              align="center"
+                              sx={{ pr: 3 }}
+                            ></TableCell>
+                          </TableRow>
+                        ) : (
+                          ""
+                        )}
                         <TableBody>
                           {displayedData.map((row, index) => (
                             <TableRow
@@ -324,9 +300,19 @@ const UserDashboard = () => {
                               <TableCell align="right">{row.age}</TableCell>
                               <TableCell align="right">{row.role}</TableCell>
                               <TableCell align="right">{row.gender}</TableCell>
-                              <TableCell align="right">
-                                {row.birthday}
-                              </TableCell>
+                              {(() => {
+                                let date = new Date(row.birthday);
+                                let getDate =
+                                  date.getDate() +
+                                  "/" +
+                                  (date.getMonth() + 1) +
+                                  "/" +
+                                  date.getFullYear();
+                                return (
+                                  <TableCell align="right">{getDate}</TableCell>
+                                );
+                              })()}
+
                               <TableCell align="center" sx={{ pr: 2 }}>
                                 <Stack
                                   direction="row"
@@ -338,12 +324,14 @@ const UserDashboard = () => {
                                       color="primary"
                                       aria-label="edit"
                                       size="large"
+                                      onClick={() => handleEditUserData(row)}
                                     >
                                       <EditIcon sx={{ fontSize: "1rem" }} />
                                     </IconButton>
                                   </Tooltip>
                                   <Tooltip placement="top" title="Delete">
                                     <IconButton
+                                      onClick={() => handleDeleteUser(row?._id)}
                                       color="primary"
                                       sx={{
                                         color: "black",
@@ -415,10 +403,13 @@ const UserDashboard = () => {
                       </Grid>
                     </Grid>
                   </Grid>
-                  <Grid item xs={12} sx={{ mt: -2, mb: -2 }}>
+                  <Grid item xs={12} sx={{ mt: -4, mb: -2 }}>
                     <Grid container spacing={3}>
                       <Grid item sm zeroMinWidth textAlign={"left"}>
-                        <p>Note: User data corrected according to your information.</p>
+                        <p>
+                          Note: User data corrected according to your
+                          information.
+                        </p>
                       </Grid>
                       <Grid item>
                         <Button
@@ -426,10 +417,9 @@ const UserDashboard = () => {
                           type="submit"
                           variant="contained"
                           color="secondary"
-                          disabled={loader}
+                          onClick={handleAddUserButton}
                         >
                           Add user &nbsp;&nbsp;
-                          {loader ? <CircularProgressWithLabel /> : ""}
                         </Button>
                       </Grid>
                     </Grid>

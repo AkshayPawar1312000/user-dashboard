@@ -7,6 +7,7 @@ import UserLogin from "./Components/UserPages/UserLogin";
 import headerBackground from "./Image/background/bg-header.jpg";
 import AlertMessage from "./Components/PopUpMessage/AlertMessage";
 
+// This HeaderWrapper function provide the image to added in background
 const HeaderWrapper = styled("div")(({ theme }) => ({
   backgroundImage: `url(${headerBackground})`,
   backgroundSize: "cover",
@@ -25,7 +26,6 @@ const HeaderWrapper = styled("div")(({ theme }) => ({
 function App() {
   return (
     <div>
- 
       <HeaderWrapper>
         <AlertMessage />
         <Router>

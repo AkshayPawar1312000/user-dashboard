@@ -1,16 +1,14 @@
+import axios from "axios";
+
 // API component manages communication with external APIs, handling requests and responses to the server
-
-import axios from 'axios'
-
-const API = axios.create({ baseURL: process.env.REACT_APP_API})
-
+const API = axios.create({ baseURL: process.env.REACT_APP_API });
 API.interceptors.request.use((req) => {
-    // if(localStorage.getItem('profile')) {
-    //     req.headers.authorization = `Bearer ${JSON.parse(localStorage.getItem('profile')).token}`
-    // }
+  return req;
+});
 
-    return req
-})
-
-
-// export const getQuiz = (id) => API.get(`/quiz/${id}`);
+// APIs endpoints
+export const addUser = (data) => API.post(`/user`, data);
+export const allUsers = () => API.get(`/users`);
+export const deleteUser = (id) => API.delete(`/deleteUser/${id}`);
+export const updateUser = (id, data) => API.put(`/updateUser/${id}`, data);
+export const login = (data) => API.post(`/login`, data);

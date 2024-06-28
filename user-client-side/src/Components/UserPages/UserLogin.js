@@ -9,7 +9,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,7 +17,9 @@ import CircularProgress, {
   circularProgressClasses,
 } from "@mui/material/CircularProgress";
 import { Controller, useForm } from "react-hook-form";
+import Box from "@mui/material/Box";
 
+// CircularProgressWithLabel component shows a circular progress bar with a label.
 function circularProgress(props) {
   return (
     <Box
@@ -61,54 +62,45 @@ function circularProgress(props) {
     </Box>
   );
 }
-const role = [
-  {
-    value: "admin",
-    label: "Admin",
-  },
-  {
-    value: "user",
-    label: "User",
-  },
-  {
-    value: "guest",
-    label: "Guest",
-  },
-];
-// ===========================|| USER REGISTRATION ||=========================== //
 
+// =============================================|| USER LOGIN ||============================================= //
+
+// UserLogin handles user authentication with a form for email and password input.
+// It integrates with Redux for state management and includes navigation links for new user registration.
 const UserLogin = () => {
 
+  // constant values
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // useSelector
   const submitLoader = useSelector((state) => state?.user.loader);
 
+  // useState
   const [loader, setLoader] = useState(submitLoader);
 
+  // This function handle the react-hook-form validation
   const {
-    register,
     handleSubmit,
     control,
     formState: { errors },
   } = useForm();
 
+  // This function works as a submit user login data EX. Email, Password
   const onSubmit = (data) => {
-    const userData = {
-      ...data,
-    };
-    dispatch(userLogin(userData, navigate));
+    dispatch(userLogin(data, navigate));
   };
 
   const handleGoToRegPage = () => {
     navigate("/");
   };
 
+  // useEffect
   useEffect(() => {
     setLoader(submitLoader);
   }, [submitLoader]);
-  
+
   return (
     <>
       <Container maxWidth="md">
